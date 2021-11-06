@@ -12,11 +12,12 @@ namespace CawkVMUnpacker.Unpacking {
 		}
 
 		internal CilBody Convert(MethodDef method, IList<VMInstruction> instrs, IList<VMExceptionHandler> exceptionHandlers) {
-			var newInstrs = ConvertInstructions(method, instrs);
+			var gpContext = GenericParamContext.Create(method);
 
-			FixBrancheTargets(newInstrs);
+			var newInstrs = ConvertInstructions(method, instrs, gpContext);
+			FixBranchTargets(newInstrs);
 
-			var newExHandlers = ConvertExceptionHandlers(exceptionHandlers, newInstrs);
+			var newExHandlers = ConvertExceptionHandlers(exceptionHandlers, newInstrs, gpContext);
 
 			return new CilBody(method.Body.InitLocals, newInstrs, newExHandlers, method.Body.Variables) {
 				LocalVarSigTok = method.Body.LocalVarSigTok,
@@ -24,7 +25,7 @@ namespace CawkVMUnpacker.Unpacking {
 			};
 		}
 
-		private IList<Instruction> ConvertInstructions(MethodDef method, IList<VMInstruction> instrs) {
+		private IList<Instruction> ConvertInstructions(MethodDef method, IList<VMInstruction> instrs, GenericParamContext gpContext) {
 			List<Instruction> newInstrs = new List<Instruction>();
 			foreach (VMInstruction parsedInstr in instrs) {
 				switch (parsedInstr.OperandType) {
@@ -45,7 +46,7 @@ namespace CawkVMUnpacker.Unpacking {
 						if (parsedInstr.Operand is null)
 							throw new InvalidOperationException();
 						newInstrs.Add(
-							new Instruction(parsedInstr.OpCode.ToOpCode(), _module.ResolveToken((int)parsedInstr.Operand)));
+							new Instruction(parsedInstr.OpCode.ToOpCode(), _module.ResolveToken((int)parsedInstr.Operand, gpContext)));
 						break;
 					case OperandType.InlineI:
 					case OperandType.InlineI8:
@@ -71,7 +72,7 @@ namespace CawkVMUnpacker.Unpacking {
 			return newInstrs;
 		}
 
-		private static void FixBrancheTargets(IList<Instruction> instrs) {
+		private static void FixBranchTargets(IList<Instruction> instrs) {
 			foreach (var instr in instrs) {
 				switch (instr.OpCode.OperandType) {
 					case OperandType.InlineBrTarget:
@@ -90,7 +91,7 @@ namespace CawkVMUnpacker.Unpacking {
 			}
 		}
 
-		private IList<ExceptionHandler> ConvertExceptionHandlers(IList<VMExceptionHandler> exHandlers, IList<Instruction> instrs) {
+		private IList<ExceptionHandler> ConvertExceptionHandlers(IList<VMExceptionHandler> exHandlers, IList<Instruction> instrs, GenericParamContext gpContext) {
 			var result = new List<ExceptionHandler>();
 			foreach (var exHandler in exHandlers) {
 				var exType = exHandler.HandlerType switch {
@@ -104,7 +105,7 @@ namespace CawkVMUnpacker.Unpacking {
 
 				var handler = new ExceptionHandler(exType) {
 					CatchType = exHandler.CatchTypeMDToken != -1
-						? _module.ResolveToken(exHandler.CatchTypeMDToken) as ITypeDefOrRef
+						? _module.ResolveToken(exHandler.CatchTypeMDToken, gpContext) as ITypeDefOrRef
 						: null,
 					FilterStart = exHandler.FilterStart != -1 ? instrs[exHandler.FilterStart] : null,
 					HandlerEnd = exHandler.HandlerEnd != -1 ? instrs[exHandler.HandlerEnd] : null,
