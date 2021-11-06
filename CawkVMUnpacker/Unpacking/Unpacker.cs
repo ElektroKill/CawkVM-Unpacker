@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -115,12 +115,8 @@ namespace CawkVMUnpacker.Unpacking {
 						continue;
 					}
 
-					var methodData = new RawMethodData {
-						Length = instrs[sizeIndex.Value].GetLdcI4Value(),
-						Offset = instrs[offsetIndex.Value].GetLdcI4Value()
-					};
-
-					result[method] = methodData;
+					result[method] = new RawMethodData(instrs[sizeIndex.Value].GetLdcI4Value(),
+						instrs[offsetIndex.Value].GetLdcI4Value());
 				}
 			}
 
