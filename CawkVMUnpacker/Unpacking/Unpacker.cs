@@ -115,8 +115,7 @@ namespace CawkVMUnpacker.Unpacking {
 						continue;
 					}
 
-					result[method] = new RawMethodData(instrs[sizeIndex.Value].GetLdcI4Value(),
-						instrs[offsetIndex.Value].GetLdcI4Value());
+					result[method] = new RawMethodData(instrs[offsetIndex.Value].GetLdcI4Value(), instrs[sizeIndex.Value].GetLdcI4Value());
 				}
 			}
 
