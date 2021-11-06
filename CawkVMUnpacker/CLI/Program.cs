@@ -27,6 +27,7 @@ namespace CawkVMUnpacker.CLI {
 					CLIUtils.WriteLineInColor("Options:", ConsoleColor.Gray);
 					CLIUtils.WriteLineInColor("    --help|-h                     Showns this screen.", ConsoleColor.Gray);
 					CLIUtils.WriteLineInColor("    --preserveMD|-p               Preserves all metadata when writing.", ConsoleColor.Gray);
+					CLIUtils.WriteLineInColor("    --keepPE|-k                   Preserves all Win32 resources and extra PE data when writing.", ConsoleColor.Gray);
 					CLIUtils.WriteLineInColor("    --dataName|-d                 Specify CawkVM data resource name.", ConsoleColor.Gray);
 					retValue = 0;
 				}

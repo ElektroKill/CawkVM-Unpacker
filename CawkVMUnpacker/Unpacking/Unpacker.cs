@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Security.Cryptography;
@@ -153,18 +153,19 @@ namespace CawkVMUnpacker.Unpacking {
 		private void WriteModule(ModuleDefMD module, string filePath) {
 			ModuleWriterOptionsBase modOpts;
 
-			if (!module.IsILOnly || module.VTableFixups != null) {
-				modOpts = new NativeModuleWriterOptions(module, true) {
-					KeepWin32Resources = true,
-					KeepExtraPEData = true
-				};
-			}
+			if (!module.IsILOnly || module.VTableFixups != null)
+				modOpts = new NativeModuleWriterOptions(module, true);
 			else
 				modOpts = new ModuleWriterOptions(module);
 
 			if (parameters.PreserveMetadata) {
 				modOpts.MetadataOptions.Flags |= MetadataFlags.PreserveAll;
 				modOpts.MetadataOptions.PreserveHeapOrder(module, true);
+			}
+
+			if (parameters.KeepExtraPEData && modOpts is NativeModuleWriterOptions nativeOpts) {
+				nativeOpts.KeepWin32Resources = true;
+				nativeOpts.KeepExtraPEData = true;
 			}
 
 			modOpts.Logger = new DnlibLogger(logger);

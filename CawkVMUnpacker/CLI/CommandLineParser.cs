@@ -39,6 +39,10 @@ namespace CawkVMUnpacker.CLI {
 					case "-p":
 						parsedArgs.PreserveMetadata = true;
 						break;
+					case "--keepPE":
+					case "-k":
+						parsedArgs.KeepExtraPEData = true;
+						break;
 					case "--dataName":
 					case "-d":
 						parsedArgs.DataResourceName = args[++i];

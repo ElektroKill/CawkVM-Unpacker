@@ -5,6 +5,7 @@ namespace CawkVMUnpacker.CLI {
 		internal bool ShowHelp { get; set; }
 		public string? FilePath { get; set; }
 		public bool PreserveMetadata { get; set; }
+		public bool KeepExtraPEData { get; set; }
 		public string? DataResourceName { get; set; }
 	}
 }
